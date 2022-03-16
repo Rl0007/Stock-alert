@@ -4,16 +4,19 @@ from urllib import request
 import json
 
 from sqlalchemy import null
-from flask import Flask,jsonify,request
+from flask import Flask,jsonify,request,send_from_directory
 from flask_sqlalchemy import SQLAlchemy
 from py5paisa import FivePaisaClient
 import threading
 from notify_run import Notify
 import time
 import os
+from flask_cors import CORS,cross_origin
+CORS(app)
+
 from dotenv import load_dotenv
 load_dotenv()
-app = Flask(__name__)
+app = Flask(__name__,static_folder='./build',static_url_path='')
 app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///stockup.sqlite"
 db = SQLAlchemy(app)
 
@@ -47,8 +50,8 @@ def eventhandlerstart():
 notify = Notify()
 
 @app.route('/')
-def hello():
-    return 'Hello World!'
+def serve():
+    return send_from_directory(app.static_folder,'index.html')
 
 # stockup backend
 def stockup_serializer(stockup):
@@ -266,4 +269,4 @@ def send():
     notify.send('hello')
     return str('djfs')
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run()
