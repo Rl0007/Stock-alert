@@ -51,7 +51,8 @@ def eventhandlerstart():
 
 @app.route('/')
 def serve():
-    return send_from_directory(app.static_folder,'index.html')
+    # return send_from_directory(app.static_folder,'index.html')
+    return{'202':'hello'}
 
 # stockup backend
 def stockup_serializer(stockup):
