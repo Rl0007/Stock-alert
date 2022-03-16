@@ -8,7 +8,7 @@ from flask import Flask,jsonify,request,send_from_directory
 from flask_sqlalchemy import SQLAlchemy
 from py5paisa import FivePaisaClient
 import threading
-from notify_run import Notify
+from pushnotifier import PushNotifier as pn
 import time
 import os
 from flask_cors import CORS,cross_origin
@@ -43,12 +43,11 @@ class Stockdown(db.Model):
 exit_event = threading.Event()
 # def eventhandlerstop():
 #     exit_event.set()
-
+pn = pn.PushNotifier(os.getenv("push_name"),os.getenv("push_passwd"),os.getenv("push_package"),os.getenv("push_api"))
 
 def eventhandlerstart():
     exit_event.clear()
 
-notify = Notify()
 
 @app.route('/')
 def serve():
@@ -202,7 +201,7 @@ def streaming():
                     for stock in stockup:
                         if stock.stock == data_stockup[i]['Symbol']:
                             if float(data_stockup[i]['LastRate'])>stock.price:
-                                notify.send(f"{stock.stock},{float(data_stockup[i]['LastRate'])}")
+                                pn.send_text(f"{stock.stock},{float(data_stockup[i]['LastRate'])}",silent=False)
                                 Stockup.query.filter_by(stock=stock.stock,price=stock.price).delete()
                                 db.session.commit()
             else :
@@ -220,7 +219,7 @@ def streaming():
                     for stock in stockdown:
                         if stock.stock == data_stockdown[i]['Symbol']:
                             if float(data_stockdown[i]['LastRate'])<stock.price:
-                                notify.send(f"{stock.stock},{float(data_stockup[i]['LastRate'])}")
+                                pn.send_text(f"{stock.stock},{float(data_stockup[i]['LastRate'])}",silent=False)
                                 Stockdown.query.filter_by(stock=stock.stock,price=stock.price).delete()
                                 db.session.commit()
             else :
@@ -258,14 +257,14 @@ def startstream():
 def stopstreaming():
     eventhandler()
     return{"23":"streaming stopped"}
-@app.route('/registernotify')
-def registernotify():
-    val = notify.register()
+# @app.route('/registernotify')
+# def registernotify():
+#     val = notify.register()
   
     return jsonify(str(val))
 @app.route('/send')
 def send():
-    notify.send('hello')
+    pn.send_text('hello',silent=False)
     return str('djfs')
 if __name__ == '__main__':
     app.run()

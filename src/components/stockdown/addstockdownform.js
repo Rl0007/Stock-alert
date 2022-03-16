@@ -37,7 +37,8 @@ export const Addstockdownform = (props) => {
    
     if (showalert) {
     return (
-      <Alert variant="success" onClose={() => setshowalert(false)} dismissible>
+      <Alert variant="success" onClose={() => {setshowalert(false)
+      props.refresh()}} dismissible>
         <Alert.Heading>Stream</Alert.Heading>
         <p>
 streaming started successfully!!!        </p>
@@ -46,7 +47,8 @@ streaming started successfully!!!        </p>
   }
    if (showalert1) {
     return (
-      <Alert variant="danger" onClose={() => setshowalert1(false)} dismissible>
+      <Alert variant="danger" onClose={() => {setshowalert1(false)
+      props.refresh()}} dismissible>
         <Alert.Heading>Stream</Alert.Heading>
         <p>
 streaming stopped successfully!!!        </p>
