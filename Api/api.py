@@ -12,11 +12,12 @@ from notify_run import Notify
 import time
 import os
 from flask_cors import CORS,cross_origin
-CORS(app)
 
 from dotenv import load_dotenv
 load_dotenv()
 app = Flask(__name__,static_folder='./build',static_url_path='')
+CORS(app)
+
 app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///stockup.sqlite"
 db = SQLAlchemy(app)
 
@@ -186,7 +187,7 @@ def streaming():
     def checkprice ():
         while True :
             if exit_event.is_set():
-                    print("closing stream")
+                    # print("closing stream")
                     break
             stockup = Stockup.query.all()
             # for loop for stock price increase threashould
@@ -195,7 +196,7 @@ def streaming():
                 req_market_list_stockup = [*map(stock_for_market_serializer,stockup)]
                 data_dict_stockup = client.fetch_market_feed(req_market_list_stockup)
                 data_stockup = data_dict_stockup['Data']
-                print(data_stockup)
+                # print(data_stockup)
 
                 for i in range(len(data_stockup)):
                     for stock in stockup:
@@ -205,7 +206,8 @@ def streaming():
                                 Stockup.query.filter_by(stock=stock.stock,price=stock.price).delete()
                                 db.session.commit()
             else :
-                print('list empty')
+                # print('list empty')
+                pass
     
             stockdown = Stockdown.query.all()
             # for loop for stock price decrease threashould
@@ -213,7 +215,7 @@ def streaming():
                 req_market_list_stockdown = [*map(stock_for_market_serializer,stockdown)]
                 data_dict_stockdown = client.fetch_market_feed(req_market_list_stockdown)
                 data_stockdown = data_dict_stockdown['Data']
-                print(data_stockdown)
+                # print(data_stockdown)
                 for i in range(len(data_stockdown)):
                     for stock in stockdown:
                         if stock.stock == data_stockdown[i]['Symbol']:
@@ -222,19 +224,18 @@ def streaming():
                                 Stockdown.query.filter_by(stock=stock.stock,price=stock.price).delete()
                                 db.session.commit()
             else :
-                print('list empty2')
+                # print('list empty2')
+                pass
             time.sleep(2)
     if len(th)==0:
-        print('iff....................')
+        # print('iff....................')
         t1 = threading.Thread(target=checkprice,
                                 name=checkprice)  
                                     
         t1.start()
-        print(threading.active_count())
-        print(t1.getName())
+      
         th.append(t1)
     else :
-        print('else....................')
         pass
 def eventhandler():
     exit_event.set()
@@ -246,7 +247,6 @@ def eventhandler():
 @app.route('/startstreaming')
 def startstream():
     
-        print(threading.active_count())
         streaming()
         return{"22":"streaming"}
    
@@ -261,8 +261,7 @@ def stopstreaming():
 @app.route('/registernotify')
 def registernotify():
     val = notify.register()
-    print(str(val))
-    print(type(val))
+  
     return jsonify(str(val))
 @app.route('/send')
 def send():
