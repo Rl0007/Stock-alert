@@ -18,7 +18,7 @@ load_dotenv()
 app = Flask(__name__,static_folder='./build',static_url_path='')
 CORS(app)
 
-app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///stockup.sqlite"
+app.config["SQLALCHEMY_DATABASE_URI"] = os.getenv("DATABASE_URL")
 db = SQLAlchemy(app)
 
 
